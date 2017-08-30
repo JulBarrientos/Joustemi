@@ -2,6 +2,7 @@ import { NgModule, ErrorHandler } from '@angular/core';
 import { BrowserModule } from '@angular/platform-browser';
 import { IonicApp, IonicModule, IonicErrorHandler } from 'ionic-angular';
 import { MyApp } from './app.component';
+import { DatePipe } from '@angular/common';
 
 import { AboutPage } from '../pages/about/about';
 import { ContactPage } from '../pages/contact/contact';
@@ -15,6 +16,11 @@ import { StatusBar } from '@ionic-native/status-bar';
 import { SplashScreen } from '@ionic-native/splash-screen';
 
 import { Environment } from '../environments/environment';
+
+import {File} from '@ionic-native/file';
+import {FileChooser} from '@ionic-native/file-chooser';
+import {FilePath} from '@ionic-native/file-path'
+import 'firebase/storage';
 
 @NgModule({
   declarations: [
@@ -43,6 +49,10 @@ import { Environment } from '../environments/environment';
     StatusBar,
     SplashScreen,
     Media, 
+    File,
+    FileChooser,
+    FilePath,
+    DatePipe,
     {provide: ErrorHandler, useClass: IonicErrorHandler}
   ]
 })

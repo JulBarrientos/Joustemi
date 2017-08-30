@@ -19,7 +19,7 @@ export class AboutPage {
 
   }
 
-  firestore = this.firebaseApp.storage();
+ 
   imgsource: any;
   nativepath: any;
 
@@ -40,8 +40,9 @@ export class AboutPage {
           var reader = new FileReader();
           reader.readAsArrayBuffer(resFile);
           reader.onloadend = (evt: any) => {
+
             var imgBlob = new Blob([evt.target.result], { type: 'image/jpeg' });
-            var imageStore = this.firestore.ref().child('image');
+            var imageStore = this.firebaseApp.storage().ref().child('image');
             imageStore.put(imgBlob).then((res) => {
               alert('Upload Success');
             }).catch((err) => {
@@ -53,7 +54,7 @@ export class AboutPage {
     }
   
     display() {
-      this.firestore.ref().child('image').getDownloadURL().then((url) => {
+      this.firebaseApp.storage().ref().child('image').getDownloadURL().then((url) => {
         this.zone.run(() => {
           this.imgsource = url;
          })
