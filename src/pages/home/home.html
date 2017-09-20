@@ -5,11 +5,10 @@
 </ion-header>
 
 <ion-content padding>
-  <h2>Welcome to Joustemi</h2>
   <div>
     <button ion-button  [disabled]="recording" (click)='record()'>Record</button>
   </div>
-    <ion-card  *ngFor="let item of audios" (click)="(!playing?play(item):null)">
+    <ion-card  *ngFor="let item of audios" (click)="(!playing?play(item):stop())">
         <img src="assets/img/bg.png"/>
         <div class="card-title"> 
             <ion-icon *ngIf="!playing" name="play"></ion-icon> 

@@ -4,6 +4,9 @@ import { IonicApp, IonicModule, IonicErrorHandler } from 'ionic-angular';
 import { MyApp } from './app.component';
 import { DatePipe } from '@angular/common';
 
+import { AndroidPermissions } from '@ionic-native/android-permissions';
+
+
 import { AboutPage } from '../pages/about/about';
 import { ContactPage } from '../pages/contact/contact';
 import { HomePage } from '../pages/home/home';
@@ -52,6 +55,7 @@ import 'firebase/storage';
     File,
     FileChooser,
     FilePath,
+    AndroidPermissions,
     DatePipe,
     {provide: ErrorHandler, useClass: IonicErrorHandler}
   ]
