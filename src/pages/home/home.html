@@ -6,14 +6,18 @@
 
 <ion-content padding>
   <div>
-    <button ion-button  [disabled]="recording" (click)='record()'>Record</button>
+      <ion-item>
+          <ion-label  color="primary" floating>Usuario</ion-label>
+          <ion-input [(ngModel)]="usu"></ion-input>
+        </ion-item>
+    <button ion-button class="record"  [disabled]="recording" (click)='record()'>Record</button>
   </div>
-    <ion-card  *ngFor="let item of audios" (click)="(!playing?play(item):stop())">
+    <ion-card  *ngFor="let item of items | async" (click)="(!playing?play(item.name):stop())">
         <img src="assets/img/bg.png"/>
         <div class="card-title"> 
             <ion-icon *ngIf="!playing" name="play"></ion-icon> 
             <ion-icon *ngIf="playing" name="pause"></ion-icon>
         </div>
-       <!-- <div class="card-subtitle">{{item}}</div>-->
+       <div class="card-subtitle">{{item.usu}}</div>
     </ion-card>
 </ion-content>

@@ -6,9 +6,11 @@ import { DatePipe } from '@angular/common';
 
 import { AndroidPermissions } from '@ionic-native/android-permissions';
 
+import { FileTransfer, FileUploadOptions, FileTransferObject } from '@ionic-native/file-transfer';
 
 import { AboutPage } from '../pages/about/about';
 import { ContactPage } from '../pages/contact/contact';
+import { LoginPage } from '../pages/login/login';
 import { HomePage } from '../pages/home/home';
 import { TabsPage } from '../pages/tabs/tabs';
 import { Media} from '@ionic-native/media';
@@ -31,6 +33,7 @@ import 'firebase/storage';
     AboutPage,
     ContactPage,
     HomePage,
+    LoginPage,
     TabsPage
   ],
   imports: [
@@ -46,6 +49,7 @@ import 'firebase/storage';
     AboutPage,
     ContactPage,
     HomePage,
+    LoginPage,
     TabsPage
   ],
   providers: [
@@ -53,6 +57,7 @@ import 'firebase/storage';
     SplashScreen,
     Media, 
     File,
+    FileTransfer,
     FileChooser,
     FilePath,
     AndroidPermissions,
