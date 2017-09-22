@@ -16,10 +16,15 @@ import { TabsPage } from '../tabs/tabs';
     pass: string ='';
     user: Observable<firebase.User>;
     
-      constructor(public afAuth: AngularFireAuth,private firebaseApp: FirebaseApp) {
+      constructor(public afAuth: AngularFireAuth,private firebaseApp: FirebaseApp, private navCtrl: NavController) {
         this.user = afAuth.authState;
       }
-    
+      ionViewDidLoad() {
+        if(this.user!=null){
+          this.navCtrl.setRoot(TabsPage, {}, {animate: true, direction: 'forward'});
+        }
+       
+      }
       login() {
         //this.afAuth.auth.signInWithPopup(new firebase.auth.GoogleAuthProvider());
         const provider = new firebase.auth.GoogleAuthProvider();
@@ -28,7 +33,7 @@ import { TabsPage } from '../tabs/tabs';
               // This gives you a Google Access Token.
               // You can use it to access the Google API.
               console.log("Login done");
-              //this.navCtrl.setRoot(TabsPage, {}, {animate: true, direction: 'forward'});
+            //  this.navCtrl.setRoot(TabsPage, {}, {animate: true, direction: 'forward'});
 
               //var token = result.credential.accessToken;
               // The signed-in user info.

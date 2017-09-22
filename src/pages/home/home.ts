@@ -2,6 +2,9 @@ import { Component,NgZone  } from '@angular/core';
 import { NavController, Platform } from 'ionic-angular';
 import { Media, MediaObject } from '@ionic-native/media';
 import { DatePipe } from '@angular/common'
+import { Observable } from 'rxjs/Observable';
+
+import * as firebase from 'firebase/app';
 
 import {File} from '@ionic-native/file';
 import { FileTransfer, FileUploadOptions, FileTransferObject } from '@ionic-native/file-transfer';
@@ -22,6 +25,7 @@ export class HomePage {
   playing: boolean=false;
   currentPlaying: any;
   usu: string ='';
+  user: Observable<firebase.User>;
 
   constructor(private navCtrl: NavController, private datepipe: DatePipe, private media: Media, 
                private file: File, db: AngularFireDatabase, private firebaseApp: FirebaseApp,
