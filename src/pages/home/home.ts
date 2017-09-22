@@ -39,7 +39,6 @@ export class HomePage {
               private zone: NgZone, private platform: Platform, private transfer: FileTransfer,
               private androidPermissions: AndroidPermissions, private afAuth: AngularFireAuth,
               private alertCtrl: AlertController) {
-
     //this.showAlert()
     const fileTransfer: FileTransferObject = this.transfer.create();
     document.addEventListener("deviceready", this.onDeviceReady, false);
