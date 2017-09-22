@@ -1,4 +1,4 @@
-import { Component,NgZone  } from '@angular/core';
+import { Component,NgZone, Pipe  } from '@angular/core';
 import { NavController, Platform } from 'ionic-angular';
 import * as firebase from 'firebase/app';
 import { Observable } from 'rxjs/Observable';
@@ -16,10 +16,20 @@ import { TabsPage } from '../tabs/tabs';
     pass: string ='';
     user: Observable<firebase.User>;
     
-      constructor(public afAuth: AngularFireAuth,private firebaseApp: FirebaseApp) {
-        this.user = afAuth.authState;
+      constructor(public afAuth: AngularFireAuth, private navCtrl: NavController, 
+                  private firebaseApp: FirebaseApp) {
+        afAuth.authState.subscribe((auth) => {
+          var isAuth = false;
+          isAuth = auth!=null;
+          if(isAuth)
+            this.navCtrl.setRoot(TabsPage, {}, {animate: true, direction: 'forward'});
+        });
       }
-    
+      ionViewDidLoad() {
+       
+        // Put here the code you want to execute
+       
+      }
       login() {
         //this.afAuth.auth.signInWithPopup(new firebase.auth.GoogleAuthProvider());
         const provider = new firebase.auth.GoogleAuthProvider();
@@ -70,3 +80,8 @@ import { TabsPage } from '../tabs/tabs';
           });
     }
   }
+
+	
+
+
+
