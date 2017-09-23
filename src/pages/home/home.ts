@@ -4,15 +4,23 @@ import { Media, MediaObject } from '@ionic-native/media';
 import { DatePipe } from '@angular/common'
 import { Observable } from 'rxjs/Observable';
 
-import * as firebase from 'firebase/app';
+
+import "rxjs/add/operator/map";
+
+import { AlertController } from 'ionic-angular';
+
 
 import {File} from '@ionic-native/file';
 import { FileTransfer, FileUploadOptions, FileTransferObject } from '@ionic-native/file-transfer';
 
 import { AndroidPermissions } from '@ionic-native/android-permissions';
 
+import { AngularFireAuth } from 'angularfire2/auth';
+import * as firebase from 'firebase/app';
 import {FirebaseApp } from 'angularfire2';
 import { AngularFireDatabase, FirebaseListObservable } from 'angularfire2/database';
+
+  
 
 @Component({
   selector: 'page-home',
@@ -25,37 +33,39 @@ export class HomePage {
   playing: boolean=false;
   currentPlaying: any;
   usu: string ='';
-  user: Observable<firebase.User>;
-
+  alert;
+  audioRecord: MediaObject;
+  timeOut;
   constructor(private navCtrl: NavController, private datepipe: DatePipe, private media: Media, 
-               private file: File, db: AngularFireDatabase, private firebaseApp: FirebaseApp,
-                private zone: NgZone, private platform: Platform, private transfer: FileTransfer,
-                  private androidPermissions: AndroidPermissions) { 
+              private file: File, db: AngularFireDatabase, private firebaseApp: FirebaseApp,
+              private zone: NgZone, private platform: Platform, private transfer: FileTransfer,
+              private androidPermissions: AndroidPermissions, private afAuth: AngularFireAuth,
+              private alertCtrl: AlertController) {
+    //this.showAlert()
     const fileTransfer: FileTransferObject = this.transfer.create();
     document.addEventListener("deviceready", this.onDeviceReady, false);
     db.list('/Audios', { preserveSnapshot: true})
-    .subscribe(snapshots=>{
-      snapshots.forEach(snapshot => {
-         this.firebaseApp.storage().ref().child("Audios/"+snapshot.val().name).getDownloadURL().then(function(url) {
-        // `url` is the download URL for 'images/stars.jpg'
-        console.log("donwload file: "+snapshot.val().name);
-        console.log("URL\n"+url);
-        // This can be downloaded directly:
-        console.log(fileTransfer);
-        fileTransfer.download(url,file.externalRootDirectory+"PruebaRecord/" + snapshot.val().name)
-        .then((entry) => {
-          console.log('download complete: ' + entry.toURL());
-        }, (error) => {
-          console.log(error);
-        });
+      .subscribe(snapshots=>{
+        snapshots.forEach(snapshot => {
+          this.firebaseApp.storage().ref().child("Audios/"+snapshot.val().name).getDownloadURL().then(function(url) {
+          // `url` is the download URL for 'images/stars.jpg'
+          console.log("donwload file: "+snapshot.val().name);
+          console.log("URL\n"+url);
+          // This can be downloaded directly:
+          console.log(fileTransfer);
+          fileTransfer.download(url,file.externalRootDirectory+"PruebaRecord/" + snapshot.val().name)
+          .then((entry) => {
+            console.log('download complete: ' + entry.toURL());
+          }, (error) => {
+            console.log(error);
+          });
 
-        }).catch(function(error) {
-          console.log(error);
-        });
+          }).catch(function(error) {
+            console.log(error);
+          });
       });
     });
-
-    this.items = db.list('/Audios');
+    this.items = db.list('/Audios').map((array) => array.reverse()) as FirebaseListObservable<any[]>;
     this.androidPermissions.requestPermissions([this.androidPermissions.PERMISSION.CAMERA, this.androidPermissions.PERMISSION.GET_ACCOUNTS])
   }
 
@@ -70,25 +80,26 @@ export class HomePage {
     this.recording = !this.recording;
     const format = 'h:mm:ss';
     const date =  new Date(); 
-    var fileName = "audio"+this.datepipe.transform(date, 'yyyy-MM-dd hh:mm:ss')+".mp3";
+    var now = this.datepipe.transform(date, 'yyyy-MM-dd hh:mm:ss').toString();
+    var fileName = "audio" + now + ".mp3";
     fileName = fileName.replace(/:/gi,".");
     console.log(fileName);
-    const file: MediaObject = this.media.create(fileName);
+    this.audioRecord = this.media.create(fileName);
 
-    file.onStatusUpdate.subscribe(status => console.log(status)); // fires when file status changes
-    file.onSuccess.subscribe(() => {console.log('Action is successful');  this.recording = !this.recording;});
-    file.onError.subscribe(error => {console.log('Error!', error);  this.recording = !this.recording;;});
+    this.audioRecord.onStatusUpdate.subscribe(status => console.log(status)); // fires when file status changes
+    this.audioRecord.onSuccess.subscribe(() => {console.log('Action is successful');  this.recording = !this.recording;});
+    this.audioRecord.onError.subscribe(error => {console.log('Error!', error);  this.recording = !this.recording;;});
   
     // Recording to a file
-    file.startRecord();
-    
+    this.audioRecord.startRecord();
+    this.showAlert();
     console.log("Grabando");
-    window.setTimeout(() => {
-                              file.stopRecord();
-                              console.log("termino grabar");
-                              this.uploadimage(fileName, file);
-
-                            }, 4500 );    
+    this.timeOut = window.setTimeout(() => {
+        this.audioRecord.stopRecord();
+        console.log("termino grabar");
+        this.uploadAudio(fileName, this.audioRecord, now);
+        this.alert.dismiss();
+    }, 4500 );    
   }
 
 
@@ -99,20 +110,20 @@ export class HomePage {
   
   play(fileName:string):void{ 
     console.log(fileName);
-    const file: MediaObject = this.media.create(fileName.toString());
+    this.audioRecord = this.media.create(this.file.externalRootDirectory + "PruebaRecord/" +fileName.toString());
     
-    file.onStatusUpdate.subscribe(status => console.log(status)); // fires when file status changes
+    this.audioRecord.onStatusUpdate.subscribe(status => console.log(status)); // fires when file status changes
     
-    file.onSuccess.subscribe(() => {console.log('Action is successful');this.playing = !this.playing;});
+    this.audioRecord.onSuccess.subscribe(() => {console.log('Action is successful');this.playing = !this.playing;});
     
-    file.onError.subscribe(error => {console.log('Error!', error);this.playing = !this.playing;});
+    this.audioRecord.onError.subscribe(error => {console.log('Error!', error);this.playing = !this.playing;});
       // play the file
-     file.play();
+      this.audioRecord.play();
      this.playing = !this.playing;
-     this.currentPlaying =file;
+     this.currentPlaying = this.audioRecord;
       // pause the file
       //file.pause();
-      file.getCurrentPosition().then((position) => {
+      this.audioRecord.getCurrentPosition().then((position) => {
         console.log(position);
       });
     
@@ -136,9 +147,42 @@ export class HomePage {
       //  this.file.release();
       //}, 2000);
   }
-
+  showAlert() {
+    this.alert = this.alertCtrl.create({
+      title: 'Recording',
+      message: "<div class='bars'>"
+              + "<div class='bar'></div>"
+              + "<div class='bar'></div>"
+              + "<div class='bar'></div>"
+              + "<div class='bar'></div>"
+              + "<div class='bar'></div>"
+              + "<div class='bar'></div>"
+              + "<div class='bar'></div>"
+              + "<div class='bar'></div>"
+              + "<div class='bar'></div>"
+              + "<div class='bar'></div>"
+              + "</div>",
+      buttons:[
+          {
+            text: 'Abort',
+            role: 'destructive',
+            handler: () => {
+              console.log('Destructive clicked');
+            }
+          },
+          {
+            text: 'Stop',
+            role: 'destructive',
+            handler: () => {
+              console.log('Destructive clicked');
+            }
+          }
+      ]
+    });
+    this.alert.present();
+  }
   
-  uploadimage(fileName:string, file:MediaObject ) {
+  uploadAudio(fileName:string, audio:MediaObject, now:string) {
     console.log("upload imagen enter "+fileName);
     console.log(this.file.externalRootDirectory);
     (<any>window).resolveLocalFileSystemURL(this.file.externalRootDirectory  + fileName, (res) => {
@@ -153,8 +197,8 @@ export class HomePage {
                 var imageStore = this.firebaseApp.storage().ref().child("Audios/"+fileName);
                 imageStore.put(imgBlob).then((res) => {
                   alert('Upload Success');
-                  this.items.push({name:fileName,usu:this.usu});
-                  file.release();
+                  this.items.push({name:fileName,usu:firebase.auth().currentUser.email,timeRecorded:now});
+                  audio.release();
                 }).catch((err) => {
                   alert('Upload Failed' + err);
                 })

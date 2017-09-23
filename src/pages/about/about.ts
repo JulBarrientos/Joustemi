@@ -8,6 +8,7 @@ import {FilePath} from '@ionic-native/file-path'
 
 import {FirebaseApp } from 'angularfire2';
 import { AngularFireDatabase, FirebaseListObservable } from 'angularfire2/database';
+
 @Component({
   selector: 'page-about',
   templateUrl: 'about.html'

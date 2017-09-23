@@ -8,6 +8,7 @@ import { AndroidPermissions } from '@ionic-native/android-permissions';
 
 import { FileTransfer, FileUploadOptions, FileTransferObject } from '@ionic-native/file-transfer';
 
+import { Reverse} from "../utils/Pipes/Reverse";
 import { AboutPage } from '../pages/about/about';
 import { ContactPage } from '../pages/contact/contact';
 import { LoginPage } from '../pages/login/login';
@@ -34,7 +35,8 @@ import 'firebase/storage';
     ContactPage,
     HomePage,
     LoginPage,
-    TabsPage
+    TabsPage,
+    Reverse
   ],
   imports: [
     BrowserModule,
