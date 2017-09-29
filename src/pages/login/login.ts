@@ -13,8 +13,7 @@ import { TabsPage } from '../tabs/tabs';
 
   export class LoginPage {
     usu: string ='';
-    pass: string ='';
-    user: Observable<firebase.User>;
+    pass: string =''
     
       constructor(public afAuth: AngularFireAuth, private navCtrl: NavController, 
                   private firebaseApp: FirebaseApp) {
@@ -30,7 +29,34 @@ import { TabsPage } from '../tabs/tabs';
         // Put here the code you want to execute
        
       }
-      login() {
+
+      loginFB() {
+        //this.afAuth.auth.signInWithPopup(new firebase.auth.GoogleAuthProvider());
+        const provider = new firebase.auth.FacebookAuthProvider();
+        firebase.auth().signInWithRedirect(provider).then(function() {
+            firebase.auth().getRedirectResult().then(function(result) {
+              // This gives you a Google Access Token.
+              // You can use it to access the Google API.
+              console.log("Login done");
+            //  this.navCtrl.setRoot(TabsPage, {}, {animate: true, direction: 'forward'});
+
+              //var token = result.credential.accessToken;
+              // The signed-in user info.
+              //var user = result.user;
+              
+              // ...
+            }).catch(function(error) {
+              // Handle Errors here.
+              var errorCode = error.name;
+              var errorMessage = error.message;
+              console.log("Error code: "+errorCode);
+              console.log("Error message: "+errorMessage);
+              alert("Error Login")
+            });
+          });
+      }
+
+      loginGG() {
         //this.afAuth.auth.signInWithPopup(new firebase.auth.GoogleAuthProvider());
         const provider = new firebase.auth.GoogleAuthProvider();
         firebase.auth().signInWithRedirect(provider).then(function() {

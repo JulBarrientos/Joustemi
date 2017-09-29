@@ -33,6 +33,7 @@
         "@ionic-native/status-bar": "3.12.1",
         "@ionic/storage": "2.0.1",
         "angularfire2": "^4.0.0-rc.2",
+        "build": "^0.1.4",
         "cordova-android": "^6.2.3",
         "cordova-plugin-android-permissions": "^1.0.0",
         "cordova-plugin-browsertab": "^0.2.0",

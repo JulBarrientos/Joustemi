@@ -36,23 +36,24 @@ export class HomePage {
   alert;
   audioRecord: MediaObject;
   timeOut;
+
   constructor(private navCtrl: NavController, private datepipe: DatePipe, private media: Media, 
               private file: File, db: AngularFireDatabase, private firebaseApp: FirebaseApp,
               private zone: NgZone, private platform: Platform, private transfer: FileTransfer,
               private androidPermissions: AndroidPermissions, private afAuth: AngularFireAuth,
               private alertCtrl: AlertController) {
+    document.addEventListener("deviceready", this.onDeviceReady, false);          
+    androidPermissions.requestPermissions([androidPermissions.PERMISSION.RECORD_AUDIO,androidPermissions.PERMISSION.WRITE_EXTERNAL_STORAGE]); 
     //this.showAlert()
     const fileTransfer: FileTransferObject = this.transfer.create();
-    document.addEventListener("deviceready", this.onDeviceReady, false);
+
     db.list('/Audios', { preserveSnapshot: true})
       .subscribe(snapshots=>{
         snapshots.forEach(snapshot => {
           this.firebaseApp.storage().ref().child("Audios/"+snapshot.val().name).getDownloadURL().then(function(url) {
-          // `url` is the download URL for 'images/stars.jpg'
-          console.log("donwload file: "+snapshot.val().name);
-          console.log("URL\n"+url);
+          // `url` is the download URL for 'images/stars.jpg
           // This can be downloaded directly:
-          console.log(fileTransfer);
+      
           fileTransfer.download(url,file.externalRootDirectory+"PruebaRecord/" + snapshot.val().name)
           .then((entry) => {
             console.log('download complete: ' + entry.toURL());
@@ -65,14 +66,18 @@ export class HomePage {
           });
       });
     });
-    this.items = db.list('/Audios').map((array) => array.reverse()) as FirebaseListObservable<any[]>;
-    this.androidPermissions.requestPermissions([this.androidPermissions.PERMISSION.CAMERA, this.androidPermissions.PERMISSION.GET_ACCOUNTS])
+    this.items = db.list('/Audios', {
+      query: {
+        orderByChild: 'timeRecorded'
+      }
+    }).map((array) => array.reverse()) as FirebaseListObservable<any[]>;
+      
   }
 
-  
+
   
   onDeviceReady():void{
-      console.log(Media);
+  
   }
 
 
@@ -198,6 +203,7 @@ export class HomePage {
                 imageStore.put(imgBlob).then((res) => {
                   alert('Upload Success');
                   this.items.push({name:fileName,usu:firebase.auth().currentUser.email,timeRecorded:now});
+                  
                   audio.release();
                 }).catch((err) => {
                   alert('Upload Failed' + err);
