@@ -2,12 +2,9 @@ import { Component,NgZone } from '@angular/core';
 
 import { NavController } from 'ionic-angular';
 
-import {File} from '@ionic-native/file';
 import {FileChooser} from '@ionic-native/file-chooser';
-import {FilePath} from '@ionic-native/file-path'
 
 import {FirebaseApp } from 'angularfire2';
-import { AngularFireDatabase, FirebaseListObservable } from 'angularfire2/database';
 
 @Component({
   selector: 'page-about',

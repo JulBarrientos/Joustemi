@@ -1,8 +1,6 @@
-import { Component,NgZone  } from '@angular/core';
-import { NavController, Platform } from 'ionic-angular';
+import { Component  } from '@angular/core';
 import { Media, MediaObject } from '@ionic-native/media';
 import { DatePipe } from '@angular/common'
-import { Observable } from 'rxjs/Observable';
 
 
 import "rxjs/add/operator/map";
@@ -11,11 +9,10 @@ import { AlertController } from 'ionic-angular';
 
 
 import {File} from '@ionic-native/file';
-import { FileTransfer, FileUploadOptions, FileTransferObject } from '@ionic-native/file-transfer';
+import { FileTransfer, FileTransferObject } from '@ionic-native/file-transfer';
 
 import { AndroidPermissions } from '@ionic-native/android-permissions';
 
-import { AngularFireAuth } from 'angularfire2/auth';
 import * as firebase from 'firebase/app';
 import {FirebaseApp } from 'angularfire2';
 import { AngularFireDatabase, FirebaseListObservable } from 'angularfire2/database';
@@ -37,10 +34,9 @@ export class HomePage {
   audioRecord: MediaObject;
   timeOut;
 
-  constructor(private navCtrl: NavController, private datepipe: DatePipe, private media: Media, 
+  constructor(private datepipe: DatePipe, private media: Media, private transfer: FileTransfer,
               private file: File, db: AngularFireDatabase, private firebaseApp: FirebaseApp,
-              private zone: NgZone, private platform: Platform, private transfer: FileTransfer,
-              private androidPermissions: AndroidPermissions, private afAuth: AngularFireAuth,
+              private androidPermissions: AndroidPermissions,
               private alertCtrl: AlertController) {
     document.addEventListener("deviceready", this.onDeviceReady, false);          
     androidPermissions.requestPermissions([androidPermissions.PERMISSION.RECORD_AUDIO,androidPermissions.PERMISSION.WRITE_EXTERNAL_STORAGE]); 
@@ -83,14 +79,14 @@ export class HomePage {
 
   record():void{
     this.recording = !this.recording;
-    const format = 'h:mm:ss';
-    const date =  new Date(); 
-    var now = this.datepipe.transform(date, 'yyyy-MM-dd hh:mm:ss').toString();
+
+    var now = this.datepipe.transform(new Date(), 'yyyy-MM-dd hh:mm:ss').toString();
+
     var fileName = "audio" + now + ".mp3";
     fileName = fileName.replace(/:/gi,".");
     console.log(fileName);
-    this.audioRecord = this.media.create(fileName);
 
+    this.audioRecord = this.media.create(fileName);
     this.audioRecord.onStatusUpdate.subscribe(status => console.log(status)); // fires when file status changes
     this.audioRecord.onSuccess.subscribe(() => {console.log('Action is successful');  this.recording = !this.recording;});
     this.audioRecord.onError.subscribe(error => {console.log('Error!', error);  this.recording = !this.recording;;});

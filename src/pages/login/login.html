@@ -1,5 +1,17 @@
 
 <ion-content padding>
-        <button  ion-button  (click)="loginGG()">Login With Google</button>
-        <button  ion-button  (click)="loginFB()">Login With Facebook</button>
+        <div>
+                        <i class="fa fa-google" aria-hidden="true"></i>
+                        
+                <button class="gg" full  ion-button icon-start (click)="loginGG()">
+                        <ion-icon name="star"></ion-icon>
+                        Login With Google
+                </button>
+                <button class="fb"full ion-button icon-start (click)="loginFB()">
+                        <ion-icon name="star"></ion-icon>
+                        Login With Facebook
+                </button>
+        </div>
+
+   
 </ion-content>

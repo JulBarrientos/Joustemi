@@ -6,7 +6,7 @@ import { DatePipe } from '@angular/common';
 
 import { AndroidPermissions } from '@ionic-native/android-permissions';
 
-import { FileTransfer, FileUploadOptions, FileTransferObject } from '@ionic-native/file-transfer';
+import { FileTransfer } from '@ionic-native/file-transfer';
 
 import { Reverse} from "../utils/Pipes/Reverse";
 import { AboutPage } from '../pages/about/about';

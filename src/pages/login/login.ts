@@ -1,9 +1,7 @@
-import { Component,NgZone, Pipe  } from '@angular/core';
-import { NavController, Platform } from 'ionic-angular';
+import { Component  } from '@angular/core';
+import { NavController } from 'ionic-angular';
 import * as firebase from 'firebase/app';
-import { Observable } from 'rxjs/Observable';
 import {FirebaseApp } from 'angularfire2';
-import { AngularFireDatabase, FirebaseListObservable } from 'angularfire2/database';
 import { AngularFireAuth } from 'angularfire2/auth';
 import { TabsPage } from '../tabs/tabs';
 @Component({

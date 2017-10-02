@@ -5,13 +5,16 @@
 </ion-header>
 
 <ion-content padding>
-    <ion-card  *ngFor="let item of items | async" (click)="(!playing?play(item.name):stop())">
-        <img src="assets/img/bg.png"/>
-        <div class="card-title"> 
-            <ion-icon *ngIf="!playing" name="play"></ion-icon> 
-            <ion-icon *ngIf="playing" name="pause"></ion-icon>
-        </div>
-       <div class="card-subtitle">{{item.usu}}<p>{{item.timeRecorded}}</div>
+    <ion-card  *ngFor="let item of items | async" >
+        <ion-item>
+                <ion-avatar item-start (click)="(!playing?play(item.name):stop())">
+                    <img src="assets/img/bg.png">
+                    <ion-icon *ngIf="!playing" name="play"></ion-icon> 
+                    <ion-icon *ngIf="playing" name="pause"></ion-icon>
+                </ion-avatar>
+                <h2>{{item.usu}}</h2>
+                <p>{{item.timeRecorded}}</p>
+        </ion-item>
     </ion-card>
 
 
