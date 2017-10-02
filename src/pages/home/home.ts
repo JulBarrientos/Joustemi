@@ -2,8 +2,9 @@ import { Component  } from '@angular/core';
 import { Media, MediaObject } from '@ionic-native/media';
 import { DatePipe } from '@angular/common'
 
-
+import {audioClass} from '../../class/audioClass'
 import "rxjs/add/operator/map";
+
 
 import { AlertController } from 'ionic-angular';
 
@@ -79,10 +80,10 @@ export class HomePage {
 
   record():void{
     this.recording = !this.recording;
+    var nowDate = new Date();
+    var nowString = this.datepipe.transform(nowDate, 'yyyy-MM-dd hh:mm:ss').toString();
 
-    var now = this.datepipe.transform(new Date(), 'yyyy-MM-dd hh:mm:ss').toString();
-
-    var fileName = "audio" + now + ".mp3";
+    var fileName = "audio" + nowString + ".mp3";
     fileName = fileName.replace(/:/gi,".");
     console.log(fileName);
 
@@ -98,7 +99,7 @@ export class HomePage {
     this.timeOut = window.setTimeout(() => {
         this.audioRecord.stopRecord();
         console.log("termino grabar");
-        this.uploadAudio(fileName, this.audioRecord, now);
+        this.uploadAudio( new audioClass(fileName,firebase.auth().currentUser.email,nowString), this.audioRecord);
         this.alert.dismiss();
     }, 4500 );    
   }
@@ -183,10 +184,11 @@ export class HomePage {
     this.alert.present();
   }
   
-  uploadAudio(fileName:string, audio:MediaObject, now:string) {
-    console.log("upload imagen enter "+fileName);
+  uploadAudio(audioClass: audioClass, audioObject:MediaObject) {
+   
+    console.log("upload imagen enter "+audioClass.getName());
     console.log(this.file.externalRootDirectory);
-    (<any>window).resolveLocalFileSystemURL(this.file.externalRootDirectory  + fileName, (res) => {
+    (<any>window).resolveLocalFileSystemURL(this.file.externalRootDirectory  + audioClass.getName(), (res) => {
         console.log("file");
         res.file((resFile) => {
             console.log("read");
@@ -195,12 +197,12 @@ export class HomePage {
             reader.onloadend = (evt: any) => {
                 console.log("uploading");
                 var imgBlob = new Blob([evt.target.result], { type: 'audio/mp3' });
-                var imageStore = this.firebaseApp.storage().ref().child("Audios/"+fileName);
+                var imageStore = this.firebaseApp.storage().ref().child("Audios/"+audioClass.getName());
                 imageStore.put(imgBlob).then((res) => {
                   alert('Upload Success');
-                  this.items.push({name:fileName,usu:firebase.auth().currentUser.email,timeRecorded:now});
+                  this.items.push(audioClass);
                   
-                  audio.release();
+                  audioObject.release();
                 }).catch((err) => {
                   alert('Upload Failed' + err);
                 })

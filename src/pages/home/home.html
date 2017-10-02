@@ -7,13 +7,13 @@
 <ion-content padding>
     <ion-card  *ngFor="let item of items | async" >
         <ion-item>
-                <ion-avatar item-start (click)="(!playing?play(item.name):stop())">
-                    <img src="assets/img/bg.png">
+                <ion-avatar item-start >
+                    <img src="assets/img/bg.png" (click)="(!playing?play(item.name):stop())">
                     <ion-icon *ngIf="!playing" name="play"></ion-icon> 
                     <ion-icon *ngIf="playing" name="pause"></ion-icon>
                 </ion-avatar>
-                <h2>{{item.usu}}</h2>
-                <p>{{item.timeRecorded}}</p>
+                <h2>{{item._usu}}</h2>
+                <p>{{item._timeRecorded}}</p>
         </ion-item>
     </ion-card>
 
