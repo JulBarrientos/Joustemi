@@ -27,8 +27,7 @@ export class AboutPage {
         (<any>window).FilePath.resolveNativePath(url, (result) => {
           this.nativepath = result;
           this.uploadimage();
-        }
-        )
+        })
       })
     }
   

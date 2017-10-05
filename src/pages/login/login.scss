@@ -1,18 +1,38 @@
 page-login{
-    .botoneraLogin{
-        height: 60%;
-        width: 90%;
-        margin: auto;
-        position: absolute;
-        bottom: 0;
-    }
-    button{
-        margin-bottom: 15px !important;
-        &.gg{
+    .loginUsu{
+     
 
-        }
-        &.fg{
-            
+        form{
+            .item-md{
+                padding-right: 16px !important;
+            }
+            .logIn{
+                margin-top: 15px;
+            }
         }
     }
+    
+    .botoneraLogin{
+        //margin: 25px;
+        margin-bottom: auto;
+        width: 85%;
+        position: absolute;
+        bottom: 15px;
+        text-transform: none;
+
+        span{
+            margin-bottom: 10px;
+        }
+        button{
+            margin-left: 10px !important;
+            margin-bottom: auto !important;
+            text-transform: none;
+            .icon.icon-md{
+                left: 20px;
+                position: absolute;
+            }
+    
+        }
+    }
+   
 }

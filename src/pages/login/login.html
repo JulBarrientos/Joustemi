@@ -1,15 +1,42 @@
 
-<ion-content padding>
-        <div>
-                        <i class="fa fa-google" aria-hidden="true"></i>
+<ion-content padding >
+        <div  class="loginUsu">
+                <form [formGroup]="loginForm" (submit)="loginUser()" novalidate>  
+                        <ion-item>
+                                <ion-label color="primary" floating>Email</ion-label>
+                                <ion-input formControlName="email" type="email" 
+                                [class.invalid]="!loginForm.controls.email.valid && blur"></ion-input>
+                        </ion-item>
+                        <ion-item>
+                                <ion-label color="primary" floating>Password</ion-label>
+                                <ion-input formControlName="password" type="password" 
+                                [class.invalid]="!loginForm.controls.password.valid && blur"></ion-input>
+                        </ion-item>
+                
+                        <button class="logIn" ion-button block type="submit" [disabled]="!loginForm.valid">
+                                Login
+                        </button>                    
+                </form>
+               
                         
-                <button class="gg" full  ion-button icon-start (click)="loginGG()">
-                        <ion-icon name="star"></ion-icon>
-                        Login With Google
+                <button ion-button block clear (click)="goToResetPassword()">
+                                I forgot my password
                 </button>
-                <button class="fb"full ion-button icon-start (click)="loginFB()">
-                        <ion-icon name="star"></ion-icon>
-                        Login With Facebook
+        </div>
+        <div class="botoneraLogin" *ngIf="isAuth!=null">
+                <span>Don´t have an account?</span>
+                <button ion-button icon-start full  (click)="goToSignup()">
+                        <ion-icon name="ios-mail"></ion-icon>
+                        Create a new account
+                </button>
+                        
+                <button class="gg" full  ion-button icon-start   (click)="loginGG()">
+                        <ion-icon name="logo-google"></ion-icon>
+                        Sign In With Google
+                </button>
+                <button class="fb" full  ion-button icon-start  (click)="loginFB()">
+                        <ion-icon name="logo-facebook"></ion-icon>
+                        Sign In With Facebook
                 </button>
         </div>
 

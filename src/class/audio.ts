@@ -1,4 +1,4 @@
-export class audioClass {
+export class AudioData {
     private _name: string;
     private _usu: string;
     private _timeRecorded: string;

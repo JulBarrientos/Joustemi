@@ -2,7 +2,7 @@ import { Component  } from '@angular/core';
 import { Media, MediaObject } from '@ionic-native/media';
 import { DatePipe } from '@angular/common'
 
-import {audioClass} from '../../class/audioClass'
+import {AudioData} from '../../class/audio'
 import "rxjs/add/operator/map";
 
 
@@ -15,7 +15,7 @@ import { FileTransfer, FileTransferObject } from '@ionic-native/file-transfer';
 import { AndroidPermissions } from '@ionic-native/android-permissions';
 
 import * as firebase from 'firebase/app';
-import {FirebaseApp } from 'angularfire2';
+import {FirebaseApp , AngularFireModule} from 'angularfire2';
 import { AngularFireDatabase, FirebaseListObservable } from 'angularfire2/database';
 
   
@@ -27,6 +27,7 @@ import { AngularFireDatabase, FirebaseListObservable } from 'angularfire2/databa
 
 export class HomePage {
   items: FirebaseListObservable<any[]>;
+  usuarios: FirebaseListObservable<any[]>;
   recording: boolean=false;
   playing: boolean=false;
   currentPlaying: any;
@@ -34,24 +35,39 @@ export class HomePage {
   alert;
   audioRecord: MediaObject;
   timeOut;
+  externalRoot: string = '';
 
   constructor(private datepipe: DatePipe, private media: Media, private transfer: FileTransfer,
-              private file: File, db: AngularFireDatabase, private firebaseApp: FirebaseApp,
-              private androidPermissions: AndroidPermissions,
+              private file: File, private db: AngularFireDatabase, private firebaseApp: FirebaseApp,
+              private af: AngularFireModule, private androidPermissions: AndroidPermissions,
               private alertCtrl: AlertController) {
+    this.externalRoot = file.externalRootDirectory+"ShoutIt/";
     document.addEventListener("deviceready", this.onDeviceReady, false);          
     androidPermissions.requestPermissions([androidPermissions.PERMISSION.RECORD_AUDIO,androidPermissions.PERMISSION.WRITE_EXTERNAL_STORAGE]); 
     //this.showAlert()
     const fileTransfer: FileTransferObject = this.transfer.create();
-
+    this.usuarios = db.list("/userProfile");
+//--------------------------------  Descarga de imagenes de perfil --------------------------------------------//
+    db.list('/userProfile',{preserveSnapshot:true})
+      .subscribe(snapshots=>{
+        snapshots.forEach(snapshot=>{
+          fileTransfer.download(snapshot.val()._imageUrl,file.externalRootDirectory+"ShoutIt/Imagenes/"+snapshot.key+".jpg")
+          .then((entry)=>{
+            console.log("download complete");
+          },(error)=>{
+            console.log(error);
+          })
+        })
+      })
+//----------------------------- Descarga de audios ----------------------------------------------------------//
     db.list('/Audios', { preserveSnapshot: true})
       .subscribe(snapshots=>{
         snapshots.forEach(snapshot => {
-          this.firebaseApp.storage().ref().child("Audios/"+snapshot.val().name).getDownloadURL().then(function(url) {
+          this.firebaseApp.storage().ref().child("Audios/"+snapshot.val()._name).getDownloadURL().then(function(url) {
           // `url` is the download URL for 'images/stars.jpg
           // This can be downloaded directly:
-      
-          fileTransfer.download(url,file.externalRootDirectory+"PruebaRecord/" + snapshot.val().name)
+          
+          fileTransfer.download(url,file.externalRootDirectory+"ShoutIt/Audios/" + snapshot.val()._name)
           .then((entry) => {
             console.log('download complete: ' + entry.toURL());
           }, (error) => {
@@ -63,11 +79,12 @@ export class HomePage {
           });
       });
     });
+
     this.items = db.list('/Audios', {
       query: {
         orderByChild: 'timeRecorded'
       }
-    }).map((array) => array.reverse()) as FirebaseListObservable<any[]>;
+    });
       
   }
 
@@ -77,7 +94,14 @@ export class HomePage {
   
   }
 
-
+  getUsuName(UID): string{
+    var name: string ="";
+    var snapshotFinished = this.db.object('userProfile/'+ UID,{ preserveSnapshot: true})
+    snapshotFinished.subscribe(snapshot => {          
+      name = snapshot.val()._name;  
+    });
+    return name;
+  }
   record():void{
     this.recording = !this.recording;
     var nowDate = new Date();
@@ -99,7 +123,7 @@ export class HomePage {
     this.timeOut = window.setTimeout(() => {
         this.audioRecord.stopRecord();
         console.log("termino grabar");
-        this.uploadAudio( new audioClass(fileName,firebase.auth().currentUser.email,nowString), this.audioRecord);
+        this.uploadAudio( new AudioData(fileName,firebase.auth().currentUser.uid,nowString), this.audioRecord);
         this.alert.dismiss();
     }, 4500 );    
   }
@@ -112,7 +136,7 @@ export class HomePage {
   
   play(fileName:string):void{ 
     console.log(fileName);
-    this.audioRecord = this.media.create(this.file.externalRootDirectory + "PruebaRecord/" +fileName.toString());
+    this.audioRecord = this.media.create(this.file.externalRootDirectory + "ShoutIt/Audios/" +fileName.toString());
     
     this.audioRecord.onStatusUpdate.subscribe(status => console.log(status)); // fires when file status changes
     
@@ -153,16 +177,16 @@ export class HomePage {
     this.alert = this.alertCtrl.create({
       title: 'Recording',
       message: "<div class='bars'>"
-              + "<div class='bar'></div>"
-              + "<div class='bar'></div>"
-              + "<div class='bar'></div>"
-              + "<div class='bar'></div>"
-              + "<div class='bar'></div>"
-              + "<div class='bar'></div>"
-              + "<div class='bar'></div>"
-              + "<div class='bar'></div>"
-              + "<div class='bar'></div>"
-              + "<div class='bar'></div>"
+                + "<div class='bar'></div>"
+                + "<div class='bar'></div>"
+                + "<div class='bar'></div>"
+                + "<div class='bar'></div>"
+                + "<div class='bar'></div>"
+                + "<div class='bar'></div>"
+                + "<div class='bar'></div>"
+                + "<div class='bar'></div>"
+                + "<div class='bar'></div>"
+                + "<div class='bar'></div>"
               + "</div>",
       buttons:[
           {
@@ -184,8 +208,7 @@ export class HomePage {
     this.alert.present();
   }
   
-  uploadAudio(audioClass: audioClass, audioObject:MediaObject) {
-   
+  uploadAudio(audioClass: AudioData, audioObject:MediaObject) {
     console.log("upload imagen enter "+audioClass.getName());
     console.log(this.file.externalRootDirectory);
     (<any>window).resolveLocalFileSystemURL(this.file.externalRootDirectory  + audioClass.getName(), (res) => {
@@ -209,6 +232,5 @@ export class HomePage {
             }
         })
     })
-
   }
 }
