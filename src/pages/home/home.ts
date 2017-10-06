@@ -126,15 +126,14 @@ export class HomePage {
 
   finishRecord(fileName: string, nowString: string){
     window.clearTimeout(this.timeOut);
+    this.audioRecord.stopRecord();
     var audioData = new AudioData();
     audioData.Name = fileName;
     audioData.TimeRecorded = nowString;
     audioData.Usu = firebase.auth().currentUser.uid;
     audioData.Duration= this.audioRecord.getDuration();
-    this.audioRecord.stopRecord();
     console.log("termino grabar");
     this.uploadAudio( audioData);
-    
   }
   stop():void{
     this.currentPlaying.stop()
@@ -156,12 +155,14 @@ export class HomePage {
     }
       // play the file
     this.audioRecord.play();
+    console.log(this.audioRecord.getDuration());
     it._playing = true;
     this.currentPlaying = this.audioRecord;
     this.currentPlayingName = it._name;
       // pause the file
       //file.pause();
     this.audioRecord.getCurrentPosition().then((position) => {
+      console.log(this.audioRecord.getDuration());
       console.log(position);
     });
     
