@@ -9,8 +9,6 @@ import { Environment } from '../environments/environment';
 import { LoginPage } from '../pages/login/login';
 import {HomePage} from '../pages/home/home';
 import {TabsPage} from '../pages/tabs/tabs'
-
-import {UserData} from '../class/user'
 @Component({
   templateUrl: 'app.html'
 })
@@ -27,8 +25,6 @@ export class MyApp {
         this.rootPage = LoginPage;
         unsubscribe();
       } else { 
-        var userDate = new UserData(user.email, user.photoURL,user.displayName);
-        firebase.database().ref('/userProfile').child(user.uid).set(userDate);
         this.rootPage = TabsPage;
         unsubscribe();
       }

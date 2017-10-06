@@ -6,20 +6,17 @@
 
 <ion-content padding>
     <ion-card  *ngFor="let item of items | async" >
-        <ion-item>
+        <ion-item (click)="(!item._playing?play(item):stop())">
                 <ion-avatar item-start >
-                    <img src="{{externalRoot}}/Imagenes/{{item._usu}}.jpg" (click)="(!playing?play(item._name):stop())">
-                    <ion-icon *ngIf="!playing" name="play"></ion-icon> 
-                    <ion-icon *ngIf="playing" name="pause"></ion-icon>
+                    <img [src]="externalRoot+'/Imagenes/'+item._usu+'.jpg'" >
+                    <ion-icon *ngIf="!item._playing" name="play"></ion-icon> 
+                    <ion-icon *ngIf="item._playing" name="pause"></ion-icon>
                 </ion-avatar>
                 <h2>{{getUsuName(item._usu)}}</h2>
                 <p>{{item._timeRecorded}}</p>
+                <p>{{item._duration}} </p>
         </ion-item>
     </ion-card>
-    <ion-infinite-scroll (ionInfinite)="doInfinite($event)">
-            <ion-infinite-scroll-content></ion-infinite-scroll-content>
-    </ion-infinite-scroll>
-         
 
     <ion-fab  right bottom >
         <button ion-fab [disabled]="recording" (click)='record()'><ion-icon name="microphone"></ion-icon></button>

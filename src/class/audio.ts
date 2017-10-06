@@ -1,32 +1,52 @@
+
 export class AudioData {
     private _name: string;
     private _usu: string;
     private _timeRecorded: string;
+    private _playing: boolean;
+    private _duration: number;
 
-    constructor(name: string="", usu: string="", timeRecorded: string="") {
+    constructor(name: string="", usu: string="", timeRecorded: string="", duration: number=0) {
         this._name = name;
         this._usu = usu;
         this._timeRecorded = timeRecorded;
+        this._playing = false;
+        this._duration = duration;
     }
 
-   public getName(){
+  
+   get Name(): string{
        return this._name;
    }
-   public setName(name: string){
+   set Name(name: string){
        this._name = name;
    }
 
-   public getUsu(){
+   get Usu(): string{
        return this._name;
    }
-   public setUsu(usu: string){
+   set Usu(usu: string){
        this._usu = usu;
    }
 
-   public getTimeRecorded(){
+   get TimeRecorded(): string{
        return this._timeRecorded;
    }
-   public setTimeRecorded(timeRecorded: string){
+   set TimeRecorded(timeRecorded: string){
        this._timeRecorded = timeRecorded;
+   }
+
+   get Playing(): boolean{
+    return this._playing
+   }
+   set Playing(playing: boolean){
+       this._playing = playing;
+   }
+
+   get Duration(): number{
+       return this._duration;
+   }
+   set Duration(duration: number){
+       this._duration = duration;
    }
 }

@@ -3,10 +3,11 @@ import { Media, MediaObject } from '@ionic-native/media';
 import { DatePipe } from '@angular/common'
 
 import {AudioData} from '../../class/audio'
+import {UserData} from '../../class/user'
 import "rxjs/add/operator/map";
 
 
-import { AlertController } from 'ionic-angular';
+import { AlertController, Alert } from 'ionic-angular';
 
 
 import {File} from '@ionic-native/file';
@@ -26,13 +27,13 @@ import { AngularFireDatabase, FirebaseListObservable } from 'angularfire2/databa
 })
 
 export class HomePage {
-  items: FirebaseListObservable<any[]>;
-  usuarios: FirebaseListObservable<any[]>;
+  items: FirebaseListObservable<AudioData[]>;
+  audios: AudioData[];
+  usuarios: FirebaseListObservable<UserData[]>;
   recording: boolean=false;
-  playing: boolean=false;
-  currentPlaying: any;
-  usu: string ='';
-  alert;
+  currentPlaying: MediaObject;
+  currentPlayingName: string ="";
+  alert: Alert;
   audioRecord: MediaObject;
   timeOut;
   externalRoot: string = '';
@@ -66,7 +67,6 @@ export class HomePage {
           this.firebaseApp.storage().ref().child("Audios/"+snapshot.val()._name).getDownloadURL().then(function(url) {
           // `url` is the download URL for 'images/stars.jpg
           // This can be downloaded directly:
-          
           fileTransfer.download(url,file.externalRootDirectory+"ShoutIt/Audios/" + snapshot.val()._name)
           .then((entry) => {
             console.log('download complete: ' + entry.toURL());
@@ -85,7 +85,6 @@ export class HomePage {
         orderByChild: 'timeRecorded'
       }
     });
-      
   }
 
 
@@ -102,6 +101,7 @@ export class HomePage {
     });
     return name;
   }
+
   record():void{
     this.recording = !this.recording;
     var nowDate = new Date();
@@ -118,40 +118,52 @@ export class HomePage {
   
     // Recording to a file
     this.audioRecord.startRecord();
-    this.showAlert();
+    this.showAlert(fileName,nowString);
     console.log("Grabando");
-    this.timeOut = window.setTimeout(() => {
-        this.audioRecord.stopRecord();
-        console.log("termino grabar");
-        this.uploadAudio( new AudioData(fileName,firebase.auth().currentUser.uid,nowString), this.audioRecord);
-        this.alert.dismiss();
-    }, 4500 );    
+    
+    this.timeOut = window.setTimeout(()=> {this.finishRecord(fileName,nowString)}, 4500 );    
   }
 
-
+  finishRecord(fileName: string, nowString: string){
+    window.clearTimeout(this.timeOut);
+    var audioData = new AudioData();
+    audioData.Name = fileName;
+    audioData.TimeRecorded = nowString;
+    audioData.Usu = firebase.auth().currentUser.uid;
+    audioData.Duration= this.audioRecord.getDuration();
+    this.audioRecord.stopRecord();
+    console.log("termino grabar");
+    this.uploadAudio( audioData);
+    
+  }
   stop():void{
     this.currentPlaying.stop()
   }
 
   
-  play(fileName:string):void{ 
-    console.log(fileName);
-    this.audioRecord = this.media.create(this.file.externalRootDirectory + "ShoutIt/Audios/" +fileName.toString());
+  play(it):void{ 
+    console.log(it);
+    this.audioRecord = this.media.create(this.file.externalRootDirectory + "ShoutIt/Audios/" +it._name);
     
     this.audioRecord.onStatusUpdate.subscribe(status => console.log(status)); // fires when file status changes
     
-    this.audioRecord.onSuccess.subscribe(() => {console.log('Action is successful');this.playing = !this.playing;});
+    this.audioRecord.onSuccess.subscribe(() => {console.log('Action is successful'); it._playing = false;});
     
-    this.audioRecord.onError.subscribe(error => {console.log('Error!', error);this.playing = !this.playing;});
+    this.audioRecord.onError.subscribe(error => {console.log('Error!', error); it._playing = false;});
+     
+    if(this.currentPlayingName !="" && this.currentPlayingName != it._name){
+      this.stop();
+    }
       // play the file
-      this.audioRecord.play();
-     this.playing = !this.playing;
-     this.currentPlaying = this.audioRecord;
+    this.audioRecord.play();
+    it._playing = true;
+    this.currentPlaying = this.audioRecord;
+    this.currentPlayingName = it._name;
       // pause the file
       //file.pause();
-      this.audioRecord.getCurrentPosition().then((position) => {
-        console.log(position);
-      });
+    this.audioRecord.getCurrentPosition().then((position) => {
+      console.log(position);
+    });
     
       // get file duration
       //let duration = file.getDuration();
@@ -173,7 +185,7 @@ export class HomePage {
       //  this.file.release();
       //}, 2000);
   }
-  showAlert() {
+  showAlert(fileName: string, nowString: string) {
     this.alert = this.alertCtrl.create({
       title: 'Recording',
       message: "<div class='bars'>"
@@ -200,6 +212,8 @@ export class HomePage {
             text: 'Stop',
             role: 'destructive',
             handler: () => {
+              this.alert.dismiss();
+              this.finishRecord(fileName, nowString);
               console.log('Destructive clicked');
             }
           }
@@ -207,11 +221,11 @@ export class HomePage {
     });
     this.alert.present();
   }
-  
-  uploadAudio(audioClass: AudioData, audioObject:MediaObject) {
-    console.log("upload imagen enter "+audioClass.getName());
+
+  uploadAudio(audioClass: AudioData) {
+    console.log("upload imagen enter "+audioClass.Name);
     console.log(this.file.externalRootDirectory);
-    (<any>window).resolveLocalFileSystemURL(this.file.externalRootDirectory  + audioClass.getName(), (res) => {
+    (<any>window).resolveLocalFileSystemURL(this.file.externalRootDirectory  + audioClass.Name, (res) => {
         console.log("file");
         res.file((resFile) => {
             console.log("read");
@@ -220,12 +234,12 @@ export class HomePage {
             reader.onloadend = (evt: any) => {
                 console.log("uploading");
                 var imgBlob = new Blob([evt.target.result], { type: 'audio/mp3' });
-                var imageStore = this.firebaseApp.storage().ref().child("Audios/"+audioClass.getName());
+                var imageStore = this.firebaseApp.storage().ref().child("Audios/"+audioClass.Name);
                 imageStore.put(imgBlob).then((res) => {
                   alert('Upload Success');
                   this.items.push(audioClass);
                   
-                  audioObject.release();
+                  this.audioRecord.release();
                 }).catch((err) => {
                   alert('Upload Failed' + err);
                 })
